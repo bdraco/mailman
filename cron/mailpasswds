@@ -45,6 +45,7 @@ import getopt
 from types import UnicodeType
 
 import paths
+import string
 # mm_cfg must be imported before the other modules, due to the side-effect of
 # it hacking sys.paths to include site-packages.  Without this, running this
 # script from cron with python -S will fail.
@@ -194,9 +195,13 @@ def main():
                     langcnt = cnt
             enc = Utils.GetCharSet(poplang)
             # Now we're finally ready to send the email!
-            siteowner = Utils.get_site_email(host, 'owner')
-            sitereq = Utils.get_site_email(host, 'request')
-            sitebounce = Utils.get_site_email(host, 'bounces')
+
+            # Thanks to Brett Garret for the patch ##################
+            siteowner = string.replace ( listaddr, '@', '-owner@' )
+            sitereq = string.replace ( listaddr, '@', '-request@' )
+            sitebounce = string.replace ( listaddr, '@', '-bounces@' )
+            ##########################################################
+
             text = Utils.maketext(
                 'cronpass.txt',
                 {'hostname': host,
