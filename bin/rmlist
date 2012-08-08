@@ -148,8 +148,10 @@ def main():
              _('private archives')),
             (os.path.join(mm_cfg.PUBLIC_ARCHIVE_FILE_DIR, listname),
              _('public archives')),
-            (os.path.join(mm_cfg.PUBLIC_ARCHIVE_FILE_DIR, listname + '.mbox'),
-             _('public archives')),
+            ## cpanel case 36227: our configuration does not have public .mbox directory,
+            ##   and the error message confuses our users
+            #(os.path.join(mm_cfg.PUBLIC_ARCHIVE_FILE_DIR, listname + '.mbox'),
+            # _('public archives')),
             ])
 
     for dir, msg in REMOVABLES:
