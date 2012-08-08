@@ -162,7 +162,7 @@ def ChangeHTML(mlist, cgi_info, template_name, doc):
         doc.AddItem('<hr>')
         return
     code = cgi_info['html_code'].value
-    if Utils.suspiciousHTML(code):
+    if 0 and Utils.suspiciousHTML(code):
         doc.AddItem(Header(3,
            _("""The page you saved contains suspicious HTML that could
 potentially expose your users to cross-site scripting attacks.  This change
