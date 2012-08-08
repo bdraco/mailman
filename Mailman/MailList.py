@@ -185,6 +185,19 @@ class MailList(HTMLFormatter, Deliverer, ListAdmin,
         return self._full_path
 
     def getListAddress(self, extra=None):
+        ## cpanel patch
+        listfullname = self.internal_name()
+        last_underscore = listfullname.rfind('_');
+        if last_underscore > 0:
+            if extra is None:
+                listbegin = listfullname[0:last_underscore]
+                listend   = listfullname[last_underscore+1:]
+                listfullname = listbegin + '@' + listend
+                return listfullname
+            mylistnamebegin = listfullname[0:last_underscore]
+            mylistnameend   = listfullname[last_underscore+1:]
+            return '%s-%s@%s' % (mylistnamebegin, extra, mylistnameend)
+        ## /cpanel patch
         if extra is None:
             return '%s@%s' % (self.internal_name(), self.host_name)
         return '%s-%s@%s' % (self.internal_name(), extra, self.host_name)
@@ -1365,7 +1378,18 @@ class MailList(HTMLFormatter, Deliverer, ListAdmin,
         addresses in the recipient headers.
         """
         # This is the list's full address.
-        listfullname = '%s@%s' % (self.internal_name(), self.host_name)
+        ## cpanel patch
+        listfullname = self.internal_name()
+        last_underscore = listfullname.rfind('_');
+        if last_underscore > 0:
+            listbegin = listfullname[0:last_underscore]
+            listend   = listfullname[last_underscore+1:]
+            listfullname = listbegin + '@' + listend
+            listrealname = self.real_name.lower()
+        else:
+            listfullname = '%s@%s' % (self.internal_name(), self.host_name)
+            listrealname = self.internal_name()
+        ## /cpanel patch
         recips = []
         # Check all recipient addresses against the list's explicit addresses,
         # specifically To: Cc: and Resent-to:
@@ -1380,7 +1404,7 @@ class MailList(HTMLFormatter, Deliverer, ListAdmin,
             addr = addr.lower()
             localpart = addr.split('@')[0]
             if (# TBD: backwards compatibility: deprecated
-                    localpart == self.internal_name() or
+                    localpart == listrealname or
                     # exact match against the complete list address
                     addr == listfullname):
                 return True
