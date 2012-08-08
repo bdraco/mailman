@@ -1,3 +1,4 @@
+MAILTO=postmaster
 # At 8AM every day, mail reminders to admins as to pending requests.
 # They are less likely to ignore these reminders if they're mailed
 # early in the morning, but of course, this is local time... ;)
@@ -16,7 +17,7 @@
 # Every 5 mins, try to gate news to mail.  You can comment this one out
 # if you don't want to allow gating, or don't have any going on right now,
 # or want to exclusively use a callback strategy instead of polling.
-0,5,10,15,20,25,30,35,40,45,50,55 * * * * @PYTHON@ -S @prefix@/cron/gate_news
+#0,5,10,15,20,25,30,35,40,45,50,55 * * * * @PYTHON@ -S @prefix@/cron/gate_news
 #
 # At 3:27am every night, regenerate the gzip'd archive file.  Only
 # turn this on if the internal archiver is used and
