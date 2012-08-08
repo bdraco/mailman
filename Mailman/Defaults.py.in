@@ -54,7 +54,7 @@ No = no = Off = off = False
 # disable Mailman's logo footer altogther, hack
 # Mailman/htmlformat.py:MailmanLogo(), which also contains the hardcoded links
 # and image names.
-IMAGE_LOGOS = '/icons/'
+IMAGE_LOGOS = '/img-sys/'
 
 # The name of the Mailman favicon
 SHORTCUT_ICON = 'mm-icon.png'
@@ -412,7 +412,7 @@ DELIVERY_MODULE = 'SMTPDirect'
 # standard out (or send an email to the site list owner) for manual twiddling
 # of an /etc/aliases style file.  Use 'Postfix' if you are using the Postfix
 # MTA -- but then also see POSTFIX_STYLE_VIRTUAL_DOMAINS.
-MTA = 'Manual'
+MTA = None
 
 # If you set MTA='Postfix', then you also want to set the following variable,
 # depending on whether you're using virtual domains in Postfix, and which
@@ -490,7 +490,7 @@ SMTPPORT = 0                                      # default from smtplib
 
 # Command for direct command pipe delivery to sendmail compatible program,
 # when DELIVERY_MODULE is 'Sendmail'.
-SENDMAIL_CMD = '/usr/lib/sendmail'
+SENDMAIL_CMD = '/usr/sbin/sendmail'
 
 # Set these variables if you need to authenticate to your NNTP server for
 # Usenet posting or reading.  If no authentication is necessary, specify None
