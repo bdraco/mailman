@@ -344,13 +344,14 @@ class ListAdmin:
             fmsg.send(self)
         # Log the rejection
         if rejection:
+            # cpanel patch: is the str() handling still needed?
             note = '''%(listname)s: %(rejection)s posting:
 \tFrom: %(sender)s
 \tSubject: %(subject)s''' % {
-                'listname' : self.internal_name(),
+                'listname' : str(self.real_name),
                 'rejection': rejection,
-                'sender'   : str(sender).replace('%', '%%'),
-                'subject'  : str(subject).replace('%', '%%'),
+                'sender'   : sender.replace('%', '%%'),
+                'subject'  : subject.replace('%', '%%'),
                 }
             if comment:
                 note += '\n\tReason: ' + comment.replace('%', '%%')
@@ -390,14 +391,15 @@ class ListAdmin:
                self.internal_name(), addr)
         # Possibly notify the administrator in default list language
         if self.admin_immed_notify:
+            ## cpanel patch: is the str() handling still needed?
             i18n.set_language(self.preferred_language)
-            realname = self.real_name
+            realname = str(self.real_name)
             subject = _(
                 'New subscription request to list %(realname)s from %(addr)s')
             text = Utils.maketext(
                 'subauth.txt',
                 {'username'   : addr,
-                 'listname'   : self.internal_name(),
+                 'listname'   : self.real_name,
                  'hostname'   : self.host_name,
                  'admindb_url': self.GetScriptURL('admindb', absolute=1),
                  }, mlist=self)
@@ -454,7 +456,8 @@ class ListAdmin:
             text = Utils.maketext(
                 'unsubauth.txt',
                 {'username'   : addr,
-                 'listname'   : self.internal_name(),
+                 ## cpanel patch
+                 'listname'   : self.real_name,
                  'hostname'   : self.host_name,
                  'admindb_url': self.GetScriptURL('admindb', absolute=1),
                  }, mlist=self)
