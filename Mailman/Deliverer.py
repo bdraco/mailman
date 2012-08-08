@@ -191,7 +191,7 @@ is required.""")))
             i18n.set_translation(otrans)
 
     def sendProbe(self, member, msg):
-        listname = self.real_name
+        listname = str(self.real_name)
         # Put together the substitution dictionary.
         d = {'listname': listname,
              'address': member,
@@ -205,7 +205,7 @@ is required.""")))
         # probe message.
         token = self.pend_new(Pending.PROBE_BOUNCE, member, msg)
         probedict = {
-            'bounces': self.internal_name() + '-bounces',
+            'bounces': listname + '-bounces',
             'token': token,
             }
         probeaddr = '%s@%s' % ((mm_cfg.VERP_PROBE_FORMAT % probedict),

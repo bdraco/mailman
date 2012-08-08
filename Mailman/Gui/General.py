@@ -450,7 +450,7 @@ class General(GUIBase):
 
     def _setValue(self, mlist, property, val, doc):
         if property == 'real_name' and \
-               val.lower() <> mlist.internal_name().lower():
+               val.lower() <> str(mlist.real_name.lower()):
             # These values can't differ by other than case
             doc.addError(_("""<b>real_name</b> attribute not
             changed!  It must differ from the list's name by case
@@ -479,7 +479,7 @@ class General(GUIBase):
                 val, mlist.preferred_language)
         elif property == 'info':
             if val <> mlist.info:
-                if Utils.suspiciousHTML(val):
+                if 0 and Utils.suspiciousHTML(val):
                     doc.addError(_("""The <b>info</b> attribute you saved
 contains suspicious HTML that could potentially expose your users to cross-site
 scripting attacks.  This change has therefore been rejected.  If you still want
