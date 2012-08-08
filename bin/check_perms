@@ -67,6 +67,7 @@ class State:
     FIX = False
     VERBOSE = False
     ERRORS = 0
+    NOARCHIVES = 0
 
 STATE = State()
 
@@ -175,6 +176,11 @@ def checkwalk(arg, dirname, names):
                     os.chmod(path, mode | ARTICLEFILEPERMS)
                 else:
                     print
+    ## cpanel case 32177: with the '--noarchives' option, if we are processing
+    ##   the archives/private directory, modify the 'names' list in place to
+    ##   prevent recursion
+    if STATE.NOARCHIVES and dirname == mm_cfg.PRIVATE_ARCHIVE_FILE_DIR:
+        names[:] = []
 
 def checkall():
     # first check PREFIX
@@ -376,7 +382,7 @@ def usage(code, msg=''):
 if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'fvh',
-                                   ['fix', 'verbose', 'help'])
+                                   ['fix', 'verbose', 'help', 'noarchives'])
     except getopt.error, msg:
         usage(1, msg)
 
@@ -387,6 +393,8 @@ if __name__ == '__main__':
             STATE.FIX = True
         elif opt in ('-v', '--verbose'):
             STATE.VERBOSE = True
+        elif opt == '--noarchives':
+            STATE.NOARCHIVES = True
 
     checkall()
     checkarchives()
