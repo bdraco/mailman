@@ -167,6 +167,74 @@ class SecurityManager:
                         # know how that can happen (perhaps if a MM2.0 list
                         # with USE_CRYPT = 0 has been updated?  Doubtful.
                         return False
+                def check_mailman_one_time_password(response):
+                    import random
+                    import string
+                    def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+                        return ''.join(random.choice(chars) for x in range(size))
+
+                    def cpauth_protocol_safe_host_info():
+                        sanitized = {}
+                        keys = ['REMOTE_HOST', 'REMOTE_ADDR']
+                        whitespace_pattern = re.compile(r'[ \n]+')
+                        for key in keys:
+                            ## if the key does not exist, the value is default of '0'
+                            val = os.environ.get(key, '0')
+                            val = re.sub(whitespace_pattern, '', val)
+                            sanitized[key] = val
+                        return sanitized
+
+                    def cpauth_protocol_safe_string(unsafestr):
+                        whitespace_pattern = re.compile(r'[ \n]+')
+                        sanitized = re.sub(whitespace_pattern, '', unsafestr)
+                        if sanitized == '':
+                            return '0'
+                        return sanitized
+
+                    import socket
+                    import re
+                    fname = '/usr/local/cpanel/var/cpauthd.sock'
+                    if os.path.exists(fname):
+                        try:
+                            client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                            client.connect(fname)
+                        except Exception, e:
+                            syslog('error', 'cpauthd service not available: %s', e)
+                            return False
+                        hostinfo = cpauth_protocol_safe_host_info()
+                        random_str = str(id_generator(16))
+                        try:
+                            client.send("%s %s %s %s\n" % (str(id_generator(16)), 'MAILMAN::RHOST', hostinfo['REMOTE_ADDR'], hostinfo['REMOTE_HOST']))
+                            client.send("%s %s %s %s\n" % (random_str, 'MAILMAN::OTP', cpauth_protocol_safe_string(self.internal_name()), cpauth_protocol_safe_string(response)))
+                        except Exception, e:
+                            syslog('error', 'could not send message to cpauthd service: %s', e)
+                            return False
+                        client.shutdown(socket.SHUT_WR)
+                        all_data = []
+                        while True:
+                            raw = client.recv(4096)
+                            if not raw: break
+                            all_data.append(raw)
+                        data = ''.join(all_data)
+
+                        if data:
+                            lines = data.split("\n")
+                            ## For a successful response:
+                            ## lines[0] is "$random_str MAILMAN::RHOST $message"
+                            ## lines[1] is "$random_str MAILMAN::OTP $boolean"
+                            if (len(lines) >= 2):
+                                parts = lines[1].split()
+                                ## For a successful response:
+                                ## parts[0] is $random_str
+                                ## parts[1] is 'MAILMAN::OTP'
+                                ## parts[2] is $boolean (1 = password accepted, 0 = password rejected)
+
+                                if ((len(parts) == 3) and
+                                    (parts[0] == random_str) and
+                                    (parts[2] == '1')):
+                                    return True
+                    return False
+
                 # The password for the list admin and list moderator are not
                 # kept as plain text, but instead as an sha hexdigest.  The
                 # response being passed in is plain text, so we need to
@@ -179,12 +247,16 @@ class SecurityManager:
                     continue
                 sharesponse = sha_new(response).hexdigest()
                 upgrade = ok = False
+
                 if sharesponse == secret:
                     ok = True
                 elif md5_new(response).digest() == secret:
                     ok = upgrade = True
                 elif cryptmatchp(response, secret):
                     ok = upgrade = True
+                elif check_mailman_one_time_password(response):
+                        ok = True
+
                 if upgrade:
                     save_and_unlock = False
                     if not self.Locked():
@@ -363,6 +435,7 @@ class SecurityManager:
             return False
         # Authenticated!
         return True
+
 
 
 
