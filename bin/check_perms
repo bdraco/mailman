@@ -114,6 +114,12 @@ def checkwalk(arg, dirname, names):
         except OSError, e:
             if e.errno <> errno.ENOENT: raise
             continue
+
+        # CPANEL USES CUSTOM PERMS ON THE PRIVATE DIR
+        private = mm_cfg.PRIVATE_ARCHIVE_FILE_DIR
+        if path == private:
+            continue
+
         if gid <> MAILMAN_GID:
             try:
                 groupname = getgrgid(gid)[0]
@@ -135,7 +141,6 @@ def checkwalk(arg, dirname, names):
         # The directories under qfiles should be rwxrws---.  Their 'user' and
         # 'group' permissions are checked here.  Their 'other' permissions
         # aren't checked.
-        private = mm_cfg.PRIVATE_ARCHIVE_FILE_DIR
         if path == private or (
             os.path.commonprefix((path, private)) == private
             and os.path.split(path)[1] == 'database'):

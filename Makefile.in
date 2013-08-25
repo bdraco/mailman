@@ -96,7 +96,7 @@ doinstall: $(SUBDIRS)
 	    else true; \
 	    fi; \
 	done
-	chmod o-r $(DESTDIR)$(var_prefix)/archives/private
+	-chmod o-r $(DESTDIR)$(var_prefix)/archives/private
 	@for d in $(ARCH_INDEP_DIRS); \
 	do \
 	    dir=$(DESTDIR)$(prefix)/$$d; \
