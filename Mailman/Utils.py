@@ -267,6 +267,14 @@ def ScriptURL(target, web_page_url=None, absolute=False):
         fullpath = os.environ.get('SCRIPT_NAME', '') + \
                    os.environ.get('PATH_INFO', '')
     baseurl = urlparse.urlparse(web_page_url)[2]
+    is_cpanel = os.environ.get('CPANEL');
+    if is_cpanel:
+        if target != "private" and target != "listinfo" and target != "confirm" and target != "options":
+            absolute = False
+        baseurl = '/3rdparty' + baseurl
+        cp_security_token = os.environ.get('cp_security_token')
+        if cp_security_token:
+            baseurl = cp_security_token + baseurl
     if not absolute and fullpath.startswith(baseurl):
         # Use relative addressing
         fullpath = fullpath[len(baseurl):]

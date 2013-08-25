@@ -328,6 +328,12 @@ class SecurityManager:
         # i.e. usually the string `/mailman'
         parsed = urlparse(self.web_page_url)
         path = parsed[2]
+        is_cpanel = os.environ.get('CPANEL');
+        if is_cpanel:
+            path = '/3rdparty' + path
+            cp_security_token = os.environ.get('cp_security_token')
+            if cp_security_token:
+                path = cp_security_token + path
         c[key]['path'] = path
         # Make sure to set the 'secure' flag on the cookie if mailman is
         # accessed by an https url.
